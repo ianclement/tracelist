@@ -25,7 +25,7 @@ def insertion_sort(data: list[A]):
         print(data)
 
     
-data = tracelist("asdfzkljaflkzjasflkzsad")
+data = tracelist([26, 81, 44, 99, 67, 79, 90, 64, 44, 24, 100, 64])
 
 #data.read_color(lambda rc, _1, _2: f"on rgb(0,{min(255,rc*4+40)},{min(255,rc*4+40)})")
 #data.write_color(lambda _1, _2, c: c)

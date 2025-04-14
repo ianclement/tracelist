@@ -27,9 +27,9 @@ def binary_search(src: list[A], value: A) -> int:
     return -1
 
     
-data = tracelist("asdfzkljaflkzjasflkzsad")
+data = tracelist([10, 11, 13, 15, 18, 28, 29, 30, 41, 41, 45, 46, 47, 51, 64, 74, 82, 82, 83, 92, 97])
 data.sort()
 print(data)
-print(binary_search(data, "f"))
+print(binary_search(data, 29))
 print(data)
 

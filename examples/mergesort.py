@@ -54,7 +54,6 @@ def mergesort_h(xs: tracelist[A], low: int, high: int, buffer: tracelist[Optiona
     mergesort_h(xs, mid + 1, high, buffer, depth + 1)
 
     # copy the sub-arrays into the buffer
-
     xs.read_color("green3")
     for i in range(low, high + 1):
         if i == (low + high) // 2 + 1:
@@ -74,7 +73,6 @@ def mergesort_h(xs: tracelist[A], low: int, high: int, buffer: tracelist[Optiona
     print(xs)
     print(f"{'*' * depth} Done merge!")
     
-# [5,3,6,4,9,7,4,5,3,4,1,4,3,7]
-data = tracelist("asdfzkljaflkzjasflkzsad", read_color=None)
+data = tracelist([26, 81, 44, 99, 67, 79, 90, 64, 44, 24, 100, 64], read_color=None)
 mergesort(data)
 print(data)
