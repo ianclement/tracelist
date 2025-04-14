@@ -16,7 +16,6 @@
 from typing import Optional, Protocol, TypeVar, Iterable, Callable
 
 from rich.table import Table
-from rich.console import Console
 from rich import box
 from dataclasses import dataclass
 
@@ -38,6 +37,7 @@ LIST: box.Box = box.Box(
     "    \n"
 )
 
+
 class HasContains(Protocol):
     def __contains__(self, x) -> bool:
         pass
@@ -52,6 +52,7 @@ class ReadWriteColour:
     def update(self, f: Callable[[int, int, str], str]):
         self.colour = f(self.read_count, self.write_count, self.colour)
 
+        
 class tracelist(list):
     """A list class that traces the changes made to the list."""
     
@@ -156,15 +157,3 @@ class tracelist(list):
         
         return table
 
-
-if __name__ == "__main__":
-
-    console: Console = Console()
-
-    
-    xs = tracelist("abcdefg", focus=range(1, 6), read_colour=None)
-
-    xs[1] = "h"
-    console.print(xs)
-    xs[3] = xs[4]
-    console.print(xs)
