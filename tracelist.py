@@ -65,10 +65,10 @@ class tracelist(list):
 
         
     def _slice_to_range(self, s):
-        if s.start <= s.stop:
-            return range(0)
         start = s.start % len(self)
         stop = s.stop % len(self)
+        if start > stop:
+            return range(0)
         return range(start, stop, 1 if s.step is None else s.step)
 
     
@@ -90,8 +90,9 @@ class tracelist(list):
         super().__setitem__(i, v)
         if self._write_color:
             if isinstance(i, slice):
-                for j in self._slice_to_range(i):
-                    self._changes[j] = self._write_color
+                start = i.start
+                for j in range(len(v)):   # won't work for all iterables...
+                    self._changes[start + j] = self._write_color
             else:        
                 self._changes[i % len(self)] = self._write_color
         
