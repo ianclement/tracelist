@@ -1,15 +1,12 @@
 from typing import TypeVar, Optional, Protocol
-from trace_list import tracelist
+from tracelist import tracelist
 
-from rich.console import Console
-
-console: Console = Console()
+from rich import print
 
 
 class Comparable(Protocol):
     def __lt__(self, other) -> bool:
         pass
-        
 
 A = TypeVar("A", bound=Comparable)
 
@@ -45,10 +42,10 @@ def mergesort(xs: list[A]):
     
 def mergesort_h(xs: tracelist[A], low: int, high: int, buffer: tracelist[Optional[A]], depth):
 
-    console.print(f"{'*' * depth} mergesort_h(xs, {low}, {high}, buffer)")
+    print(f"{'*' * depth} mergesort_h(xs, {low}, {high}, buffer)")
     
     if low >= high:
-        console.print(f"{'*' * depth} nothing to do!")
+        print(f"{'*' * depth} nothing to do!")
         return
 
     # sort the two evenly divied subarrays 
@@ -67,15 +64,15 @@ def mergesort_h(xs: tracelist[A], low: int, high: int, buffer: tracelist[Optiona
 
     xs.focus(range(low, high + 1))
 
-    console.print(f"{'*' * depth} Before merge:")
-    console.print(xs)
+    print(f"{'*' * depth} Before merge:")
+    print(xs)
         
     # merge back into xs, so now xs[low:high] is now sorted
     merge(buffer, low, mid, high, xs)
 
-    console.print(f"{'*' * depth} After merge:")
-    console.print(xs)
-    console.print(f"{'*' * depth} Done merge!")
+    print(f"{'*' * depth} After merge:")
+    print(xs)
+    print(f"{'*' * depth} Done merge!")
     
 # [5,3,6,4,9,7,4,5,3,4,1,4,3,7]
 data = tracelist("asdfzkljaflkzjasflkzsad", read_colour=None)
