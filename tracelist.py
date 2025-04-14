@@ -17,7 +17,7 @@ from typing import Optional, Protocol, TypeVar, Iterable, Callable
 
 from rich.table import Table
 from rich import box
-from dataclasses import dataclass
+
 
 # colours are here https://rich.readthedocs.io/en/latest/appendix/colors.html
 DEFAULT_WRITE_COLOUR = "green3"
@@ -42,17 +42,7 @@ class HasContains(Protocol):
     def __contains__(self, x) -> bool:
         pass
 
-    
-@dataclass
-class ReadWriteColour:
-    read_count: int
-    write_count: int
-    colour: str = ""
-
-    def update(self, f: Callable[[int, int, str], str]):
-        self.colour = f(self.read_count, self.write_count, self.colour)
-
-        
+            
 class tracelist(list):
     """A list class that traces the changes made to the list."""
     
@@ -70,8 +60,9 @@ class tracelist(list):
 
         self._focus: Optional[HasContains] = focus
 
-        self._changes: dict[int, ReadWriteColour] = {}
+        self._changes: dict[int, str] = {}
 
+        
     def _slice_to_range(self, s):
         if s.start <= s.stop:
             return range(0)
@@ -79,15 +70,6 @@ class tracelist(list):
         stop = s.stop % len(self)
         return range(start, stop, 1 if s.step is None else s.step)
 
-    def _update_changes_at(self, i: int, f: Callable[[int, int, str], str], read:bool):
-        if i not in self._changes:
-            self._changes[i] = ReadWriteColour(0, 0)
-        if read:
-            self._changes[i].read_count += 1
-        else:
-            self._changes[i].write_count += 1
-        print(self._changes[i])
-        self._changes[i].update(f)
     
     def __getitem__(self, i):
         v = super().__getitem__(i)
@@ -95,10 +77,10 @@ class tracelist(list):
         if self._read_colour:
             if isinstance(i, slice):
                 for j in self._slice_to_range(i):
-                    self._update_changes_at(j, self._read_colour, True)
+                    self._changes[j] = self._read_colour
             else:
-                self._update_changes_at(i % len(self), self._read_colour, True)
-
+                self._changes[i % len(self)] = self._read_colour
+                
         return v
 
     def __setitem__(self, i, v):
@@ -106,9 +88,9 @@ class tracelist(list):
         if self._write_colour:
             if isinstance(i, slice):
                 for j in self._slice_to_range(i):
-                    self._update_changes_at(j, self._write_colour, True)
+                    self._changes[j] = self._write_colour
             else:        
-                self._update_changes_at(i % len(self), self._write_colour, True)
+                self._changes[i % len(self)] = self._write_colour
         
     def reset_colours(self):
         self._changes = {}
@@ -118,18 +100,14 @@ class tracelist(list):
         self._focus = focus
 
         
-    def write_colour(self, colour: str | Callable[[int, int, str], str]):
-        if callable(colour):
-            self._write_colour = colour
-        else:
-            self._write_colour = lambda _1, _2, _3: colour
-            
-    def read_colour(self, colour: str | Callable[[int, int, str], str]):
-        if callable(colour):
-            self._read_colour = colour
-        else:
-            self._read_colour = lambda _1, _2, _3: colour
-            
+    def write_colour(self, colour: str):
+        self._write_colour = colour
+
+        
+    def read_colour(self, colour: str):
+        self._read_colour = colour
+
+        
     def __rich__(self):
 
         table = Table(box=LIST, show_header=False, show_footer=False)
@@ -144,10 +122,10 @@ class tracelist(list):
             if self._focus and i not in self._focus:
                 tmp = f"[{DEFAULT_NON_FOCUS_COLOUR}]{tmp}[/{DEFAULT_NON_FOCUS_COLOUR}]"
             elif i in self._changes:
-                tmp = f"[{self._changes[i].colour}]{tmp}[/{self._changes[i].colour}]"
+                tmp = f"[{self._changes[i]}]{tmp}[/{self._changes[i]}]"
 
             line.append(tmp)
-        print(line)
+       
         table.add_row(*line)
         table.add_section()
         table.add_row(*map(lambda x: f"[{DEFAULT_LIST_INDEX_COLOUR}]{x}[/{DEFAULT_LIST_INDEX_COLOUR}]", range(len(self))))
