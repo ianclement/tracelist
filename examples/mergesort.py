@@ -63,16 +63,19 @@ def mergesort_h(xs: tracelist[A], low: int, high: int, buffer: tracelist[Optiona
 
     xs.focus(range(low, high + 1))
 
-    print(f"{'*' * depth} Before merge:")
+    print(f"{'*' * depth} before merge:")
     print(xs)
         
     # merge back into xs, so now xs[low:high] is now sorted
     merge(buffer, low, mid, high, xs)
 
-    print(f"{'*' * depth} After merge:")
+    print(f"{'*' * depth} after merge:")
     print(xs)
-    print(f"{'*' * depth} Done merge!")
-    
+    print(f"{'*' * depth} done mergesort_h")
+
+
+
 data = tracelist([26, 81, 44, 99, 67, 79, 90, 64, 44, 24, 100, 64], read_color=None)
+data = tracelist([81, 26, 44, 99, 67, 79, 24], read_color=None)
 mergesort(data)
 print(data)
