@@ -1,0 +1,83 @@
+from typing import TypeVar, Optional, Protocol
+from trace_list import tracelist
+
+from rich.console import Console
+
+console: Console = Console()
+
+
+class Comparable(Protocol):
+    def __lt__(self, other) -> bool:
+        pass
+        
+
+A = TypeVar("A", bound=Comparable)
+
+
+def merge(src: list[A], low: int, mid: int, high: int, dst: list[Optional[A]]):
+    """Merge src[low:mid] with src[mid+1:high] into dst[low:high].
+       Assumes that src[low:mid] and src[mid+1:high] are individually sorted when this is called"""
+    i: int = low
+    j: int = mid + 1
+
+    for k in range(low, high + 1):
+        if i > mid:
+            dst.write_colour("cornflower_blue")
+            dst[k] = src[j]
+            j += 1
+        elif j > high:
+            dst.write_colour("green3")
+            dst[k] = src[i]
+            i += 1
+        elif src[i] < src[j]:
+            dst.write_colour("green3")
+            dst[k] = src[i]
+            i += 1
+        else:
+            dst.write_colour("cornflower_blue")
+            dst[k] = src[j]
+            j += 1
+
+def mergesort(xs: list[A]):
+    buffer: list[A] = [None] * len(xs)
+    mergesort_h(xs, 0, len(xs) - 1, buffer, 1)
+
+    
+def mergesort_h(xs: tracelist[A], low: int, high: int, buffer: tracelist[Optional[A]], depth):
+
+    console.print(f"{'*' * depth} mergesort_h(xs, {low}, {high}, buffer)")
+    
+    if low >= high:
+        console.print(f"{'*' * depth} nothing to do!")
+        return
+
+    # sort the two evenly divied subarrays 
+    mid: int = (low + high) // 2
+    mergesort_h(xs, low, mid, buffer, depth + 1)
+    mergesort_h(xs, mid + 1, high, buffer, depth + 1)
+
+    # copy the sub-arrays into the buffer
+
+    xs.read_colour("green3")
+    for i in range(low, high + 1):
+        if i == (low + high) // 2 + 1:
+            xs.read_colour("cornflower_blue")
+        buffer[i] = xs[i]
+    xs.read_colour(None)
+
+    xs.focus(range(low, high + 1))
+
+    console.print(f"{'*' * depth} Before merge:")
+    console.print(xs)
+        
+    # merge back into xs, so now xs[low:high] is now sorted
+    merge(buffer, low, mid, high, xs)
+
+    console.print(f"{'*' * depth} After merge:")
+    console.print(xs)
+    console.print(f"{'*' * depth} Done merge!")
+    
+# [5,3,6,4,9,7,4,5,3,4,1,4,3,7]
+data = tracelist("asdfzkljaflkzjasflkzsad", read_colour=None)
+mergesort(data)
+print(data)
