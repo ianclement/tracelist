@@ -19,19 +19,19 @@ def merge(src: list[A], low: int, mid: int, high: int, dst: list[Optional[A]]):
 
     for k in range(low, high + 1):
         if i > mid:
-            dst.write_colour("cornflower_blue")
+            dst.write_color("cornflower_blue")
             dst[k] = src[j]
             j += 1
         elif j > high:
-            dst.write_colour("green3")
+            dst.write_color("green3")
             dst[k] = src[i]
             i += 1
         elif src[i] < src[j]:
-            dst.write_colour("green3")
+            dst.write_color("green3")
             dst[k] = src[i]
             i += 1
         else:
-            dst.write_colour("cornflower_blue")
+            dst.write_color("cornflower_blue")
             dst[k] = src[j]
             j += 1
 
@@ -55,12 +55,12 @@ def mergesort_h(xs: tracelist[A], low: int, high: int, buffer: tracelist[Optiona
 
     # copy the sub-arrays into the buffer
 
-    xs.read_colour("green3")
+    xs.read_color("green3")
     for i in range(low, high + 1):
         if i == (low + high) // 2 + 1:
-            xs.read_colour("cornflower_blue")
+            xs.read_color("cornflower_blue")
         buffer[i] = xs[i]
-    xs.read_colour(None)
+    xs.read_color(None)
 
     xs.focus(range(low, high + 1))
 
@@ -75,6 +75,6 @@ def mergesort_h(xs: tracelist[A], low: int, high: int, buffer: tracelist[Optiona
     print(f"{'*' * depth} Done merge!")
     
 # [5,3,6,4,9,7,4,5,3,4,1,4,3,7]
-data = tracelist("asdfzkljaflkzjasflkzsad", read_colour=None)
+data = tracelist("asdfzkljaflkzjasflkzsad", read_color=None)
 mergesort(data)
 print(data)
