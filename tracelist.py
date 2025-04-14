@@ -13,19 +13,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Protocol, TypeVar, Iterable, Callable
+from typing import Optional, Protocol, TypeVar, Iterable
 
 from rich.table import Table
 from rich import box
 
 
 # colors are here https://rich.readthedocs.io/en/latest/appendix/colors.html
-DEFAULT_WRITE_COLOR = "green3"
-DEFAULT_READ_COLOR = "magenta3"
-DEFAULT_NON_FOCUS_COLOR = "grey15"
-DEFAULT_LIST_INDEX_COLOR = "grey50"
+WRITE_COLOR = "green3"
+READ_COLOR = "magenta3"
+NON_FOCUS_COLOR = "grey15"
+LIST_INDEX_COLOR = "grey50"
 
-
+# defines the box around the list
 LIST: box.Box = box.Box(
     "┌─┬┐\n"
     "│ ││\n"
@@ -39,6 +39,7 @@ LIST: box.Box = box.Box(
 
 
 class HasContains(Protocol):
+    """Collections that support `in` operation."""
     def __contains__(self, x) -> bool:
         pass
 
@@ -46,7 +47,7 @@ class HasContains(Protocol):
 class tracelist(list):
     """A list class that traces the changes made to the list."""
     
-    def __init__(self, src: Optional[Iterable] = None, str_resets_colors: bool = True, write_color: str = DEFAULT_WRITE_COLOR, read_color: str = DEFAULT_READ_COLOR, focus: Optional[HasContains] = None):
+    def __init__(self, src: Optional[Iterable] = None, str_resets_colors: bool = True, write_color: str = WRITE_COLOR, read_color: str = READ_COLOR, focus: Optional[HasContains] = None):
 
         # create the list with any iterable
         if src:
@@ -72,6 +73,7 @@ class tracelist(list):
 
     
     def __getitem__(self, i):
+        """Get list at `i` and color the cell(s)."""
         v = super().__getitem__(i)
 
         if self._read_color:
@@ -84,6 +86,7 @@ class tracelist(list):
         return v
 
     def __setitem__(self, i, v):
+        """Set list at `i` and color the cell(s)."""
         super().__setitem__(i, v)
         if self._write_color:
             if isinstance(i, slice):
@@ -93,43 +96,50 @@ class tracelist(list):
                 self._changes[i % len(self)] = self._write_color
         
     def reset_colors(self):
+        """Manually reset the cell colors."""
         self._changes = {}
 
 
     def focus(self, focus: Optional[HasContains]):
+        """Focus on the set of cell positions given by `focus`, using the `in` operator."""
         self._focus = focus
 
         
     def write_color(self, color: str):
+        """Set the color to use when writing to a cell."""
         self._write_color = color
 
         
     def read_color(self, color: str):
+        """Set the color to use when reading from a cell."""
         self._read_color = color
 
         
     def __rich__(self):
+        """Rich representation using a table and cell coloring."""
 
+        # setup table
         table = Table(box=LIST, show_header=False, show_footer=False)
-        
         for i in range(len(self)):
             table.add_column(str(i))
-        
+
+        # construct the line with color markup
         line: list[str] = []
         for i, x in enumerate(self):
-
-            tmp: str = str(x)
+            cell: str = str(x)
             if self._focus and i not in self._focus:
-                tmp = f"[{DEFAULT_NON_FOCUS_COLOR}]{tmp}[/{DEFAULT_NON_FOCUS_COLOR}]"
+                cell = f"[{NON_FOCUS_COLOR}]{cell}[/{NON_FOCUS_COLOR}]"
             elif i in self._changes:
-                tmp = f"[{self._changes[i]}]{tmp}[/{self._changes[i]}]"
-
-            line.append(tmp)
+                cell = f"[{self._changes[i]}]{cell}[/{self._changes[i]}]"
+            line.append(cell)
        
         table.add_row(*line)
         table.add_section()
-        table.add_row(*map(lambda x: f"[{DEFAULT_LIST_INDEX_COLOR}]{x}[/{DEFAULT_LIST_INDEX_COLOR}]", range(len(self))))
-        
+
+        # add indices
+        table.add_row(*map(lambda x: f"[{LIST_INDEX_COLOR}]{x}[/{LIST_INDEX_COLOR}]", range(len(self))))
+
+        # reset the colors (if enabled)
         if self._str_resets_colors:
             self.reset_colors()
         
